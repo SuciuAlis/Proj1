@@ -17,12 +17,43 @@ public class Node implements Runnable{
     public String m_targetAddress;
     public int m_targetPort;
     Map<String, List<String>> m_routing_table_map = new HashMap<String, List<String>>();
+    public String destinationAddress = "127.0.0.5";
 
-    public Node(String localAddress, int localPort, String targetAddress, int targetPort){
-        m_localAddress = localAddress;
-        m_localPort = localPort;
-        m_targetAddress = targetAddress;
-        m_targetPort = targetPort;
+//    public Node(String localAddress, int localPort, String targetAddress, int targetPort){
+//        m_localAddress = localAddress;
+//        m_localPort = localPort;
+//        m_targetAddress = targetAddress;
+//        m_targetPort = targetPort;
+//    }
+
+
+    public Node(String m_localAddress, int m_localPort) {
+        this.m_localAddress = m_localAddress;
+        this.m_localPort = m_localPort;
+    }
+
+    public String getM_localAddress() {
+        return m_localAddress;
+    }
+
+    public int getM_localPort() {
+        return m_localPort;
+    }
+
+    public String getM_targetAddress() {
+        return m_targetAddress;
+    }
+
+    public int getM_targetPort() {
+        return m_targetPort;
+    }
+
+    public void setM_targetAddress(String m_targetAddress) {
+        this.m_targetAddress = m_targetAddress;
+    }
+
+    public void setM_targetPort(int m_targetPort) {
+        this.m_targetPort = m_targetPort;
     }
 
     public void initializeCommunication() throws IOException {
@@ -30,12 +61,18 @@ public class Node implements Runnable{
         System.out.println("_____init_Target port****"+ m_targetPort);
         Socket socket = new Socket(m_targetAddress,m_targetPort);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-        //out.writeInt(40000);//40000
-
         ByteBuffer byteBuffer = ByteBuffer.allocate(1000);
+//        byteBuffer.putInt(40000);
+        //byteBuffer.putChar('1');
+        //byteBuffer.putInt(40000);
+
+        byte[] destinationAddressBytes = destinationAddress.getBytes();
+        byteBuffer.putInt(destinationAddressBytes.length);
+        byteBuffer.put(destinationAddressBytes);
         byteBuffer.putInt(40000);
-        byteBuffer.putChar('1');
-        byteBuffer.putInt(40000);
+
+        //byteBuffer.putInt(40000);
+        //byteBuffer.put(destinationAddressBytes,0,9);
 
         byte[] array = byteBuffer.array();
         System.out.println("FIRST SENT DATA: "+Arrays.toString(array));
@@ -66,23 +103,38 @@ public class Node implements Runnable{
                     byte[] buffer = new byte[10];
                     System.out.println(in.read(buffer));
                     ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+
+                    int len = byteBuffer.getInt();
+                    byte[] destinationBytes = new byte[len];
+                    byteBuffer.get(destinationBytes);
+                    System.out.println("___________Destination____"+new String(destinationBytes));
                     int number = byteBuffer.getInt() + 1;
-                    char c = byteBuffer.getChar();
-                    System.out.println("***********Number:"+ number+"*******");
-                    System.out.println("***********Char:"+ c+"*******");
+
+//                    int number = byteBuffer.getInt() + 1;
+//                    byte[] destinationBytes = new byte[9];
+//                    byteBuffer.get(destinationBytes,0,9);
+
+                    //char c = byteBuffer.getChar();
+                    //System.out.println("***********Number:"+ number+"*******");
+                    //System.out.println("***********Char:"+ c+"*******");
                     if (number==40100){//40100
                         break;
                     }
-                    //System.out.println("*_____ ****NR "+number);
+                    System.out.println("*_____ ****NR "+number);
                     System.out.println("*_____ ****"+m_localAddress);
                     System.out.println("*_____ ****"+m_targetAddress);
                     System.out.println("*_____ ****"+ m_targetPort);
                     Socket socket2 = new Socket(m_targetAddress,m_targetPort, InetAddress.getByName(m_localAddress),0);
                     DataOutputStream out = new DataOutputStream(socket2.getOutputStream());
                     ByteBuffer byteBuffer2 = ByteBuffer.allocate(1000);
+
+                    byte[] destinationAddressBytes = destinationAddress.getBytes();
+                    byteBuffer2.putInt(destinationAddressBytes.length);
+                    byteBuffer2.put(destinationAddressBytes);
                     byteBuffer2.putInt(number);
-                    byteBuffer2.putChar('2');
-                    byteBuffer2.putInt(number);
+                    //byteBuffer2.put(destinationAddressBytes,0,9);
+                    //byteBuffer2.putChar('2');
+                    //byteBuffer2.putInt(number);
                     byte[] array = byteBuffer2.array();
                     out.write(array);
                     //out.flush();
