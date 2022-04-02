@@ -100,14 +100,15 @@ public class Node implements Runnable{
                 m_socket = m_serverSocket.accept();
                 if (m_socket.isConnected()){
                     DataInputStream in = new DataInputStream(m_socket.getInputStream());
-                    byte[] buffer = new byte[10];
+                    byte[] buffer = new byte[100];
                     System.out.println(in.read(buffer));
                     ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
 
                     int len = byteBuffer.getInt();
                     byte[] destinationBytes = new byte[len];
                     byteBuffer.get(destinationBytes);
-                    System.out.println("___________Destination____"+new String(destinationBytes));
+                    String destination = new String(destinationBytes);
+                    System.out.println("___________Destination____"+destination);
                     int number = byteBuffer.getInt() + 1;
 
 //                    int number = byteBuffer.getInt() + 1;
@@ -117,7 +118,10 @@ public class Node implements Runnable{
                     //char c = byteBuffer.getChar();
                     //System.out.println("***********Number:"+ number+"*******");
                     //System.out.println("***********Char:"+ c+"*******");
-                    if (number==40100){//40100
+//                    if (number==40100){//40100
+//                        break;
+//                    }
+                    if (m_localAddress.equalsIgnoreCase(destination)){
                         break;
                     }
                     System.out.println("*_____ ****NR "+number);
