@@ -5,12 +5,7 @@ import java.util.List;
 
 public class GUI extends JFrame{
 
-    private final JTextField N1TF;
-    private final JTextField N2TF;
-    private final JTextField N3TF;
-    private final JTextField N4TF;
-    private final JTextField N5TF;
-    List<Node> m_nodeList = new ArrayList<>();
+    List<Node> m_nodeList;
     List<JTextField> jTextFieldList = new ArrayList<>();
     boolean m_startThreads = false;
 
@@ -37,43 +32,37 @@ public class GUI extends JFrame{
         JLabel N5 = new JLabel("N5");
         N5.setBounds(20,180,20,20);
         container.add(N5);
-        N1TF = new JTextField();
-        N1TF.setBounds(50,20,100,20);
-        container.add(N1TF);
-
-        N2TF = new JTextField();
-        N2TF.setBounds(50,60,100,20);
-        container.add(N2TF);
-
-        N3TF = new JTextField();
-        N3TF.setBounds(50,100,100,20);
-        container.add(N3TF);
-
-        N4TF = new JTextField();
-        N4TF.setBounds(50,140,100,20);
-        container.add(N4TF);
-
-        N5TF = new JTextField();
-        N5TF.setBounds(50,180,100,20);
-        container.add(N5TF);
-
+        JTextField n1TF = new JTextField();
+        n1TF.setBounds(50,20,100,20);
+        container.add(n1TF);
+        jTextFieldList.add(n1TF);
+        JTextField n2TF = new JTextField();
+        n2TF.setBounds(50,60,100,20);
+        container.add(n2TF);
+        jTextFieldList.add(n2TF);
+        JTextField n3TF = new JTextField();
+        n3TF.setBounds(50,100,100,20);
+        container.add(n3TF);
+        jTextFieldList.add(n3TF);
+        JTextField n4TF = new JTextField();
+        n4TF.setBounds(50,140,100,20);
+        container.add(n4TF);
+        jTextFieldList.add(n4TF);
+        JTextField n5TF = new JTextField();
+        n5TF.setBounds(50,180,100,20);
+        container.add(n5TF);
+        jTextFieldList.add(n5TF);
         JButton jButton = new JButton("Save");
         jButton.setBounds(180,180,80,20);
         container.add(jButton);
 
         jButton.addActionListener(e -> {
-            jTextFieldList.add(N1TF);
-            jTextFieldList.add(N2TF);
-            jTextFieldList.add(N3TF);
-            jTextFieldList.add(N4TF);
-            jTextFieldList.add(N5TF);
             setNodes();
         });
     }
 
-
     public void setNodes(){
-        for(int i=0;i<5;i++) {
+        for(int i=0;i<4;i++) {
             int targetNodeIndex = Integer.parseInt(jTextFieldList.get(i).getText().substring(1))-1;
             System.out.println("TargetIndex:::::"+targetNodeIndex);
             System.out.println("Local address for current node:::::"+m_nodeList.get(i).getM_localAddress());
