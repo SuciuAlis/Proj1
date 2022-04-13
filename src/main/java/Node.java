@@ -5,19 +5,18 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Node implements Runnable{
 
-    public ServerSocket m_serverSocket;
-    public Socket m_socket;
-    public String m_localAddress;
-    public int m_localPort;
-    public String m_targetAddress;
-    public int m_targetPort;
-    Map<String, List<String>> m_routing_table_map = new HashMap<String, List<String>>();
-    public String destinationAddress = "127.0.0.5";
+    private ServerSocket m_serverSocket;
+    private Socket m_socket;
+    private String m_localAddress;
+    private int m_localPort;
+    private String m_targetAddress;
+    private int m_targetPort;
+    private Map<String, String> m_routing_table_map = new HashMap<String, String>();
+    private String destinationAddress = "127.0.0.5";
 
 //    public Node(String localAddress, int localPort, String targetAddress, int targetPort){
 //        m_localAddress = localAddress;
@@ -53,6 +52,14 @@ public class Node implements Runnable{
 
     public void setM_targetPort(int m_targetPort) {
         this.m_targetPort = m_targetPort;
+    }
+
+    public Map<String, String> getM_routing_table_map() {
+        return m_routing_table_map;
+    }
+
+    public void setM_routing_table_map(Map<String, String> m_routing_table_map) {
+        this.m_routing_table_map = m_routing_table_map;
     }
 
     public void initializeCommunication() throws IOException {
@@ -134,4 +141,11 @@ public class Node implements Runnable{
             e.printStackTrace();
         }
     };
+
+    public static void sendPackage(Node startNode, Node endNode){
+        System.out.println("START NODE:"+startNode.getM_localAddress());
+        System.out.println("END NODE:"+endNode.getM_localAddress());
+
+
+    }
 }
