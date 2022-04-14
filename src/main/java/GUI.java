@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,17 +89,23 @@ public class GUI extends JFrame{
 
         jButton.addActionListener(e -> {
             setNodes();
-            setRoutingTable();
+            //setRoutingTable();
         });
         sendData.addActionListener(e -> {
-            Node.sendPackage(m_nodeList.get(startNodeCB.getSelectedIndex()),m_nodeList.get(endNodeCB.getSelectedIndex()));
+            try {
+                System.out.println("NODUL START ALES:"+startNodeCB.getSelectedIndex());
+                System.out.println("NODUL END ALES:"+endNodeCB.getSelectedIndex());
+                m_nodeList.get(startNodeCB.getSelectedIndex()).sendPackageTo(m_nodeList.get(endNodeCB.getSelectedIndex()));
+                //m_nodeList.get(startNodeCB.getSelectedIndex()).sendPackage(m_nodeList.get(endNodeCB.getSelectedIndex()));
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         });
     }
 
     public void setNodes(){
         for(int i=0;i<4;i++) {
             int targetNodeIndex = Integer.parseInt(jTextFieldList.get(i).getText().substring(1))-1;
-            System.out.println("TargetIndex:::::"+targetNodeIndex);
             System.out.println("Local address for current node:::::"+m_nodeList.get(i).getM_localAddress());
             System.out.println("Local address for target node:::::"+m_nodeList.get(targetNodeIndex).getM_localAddress());
             m_nodeList.get(i).setM_targetAddress(m_nodeList.get(targetNodeIndex).getM_localAddress());
