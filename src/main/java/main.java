@@ -34,13 +34,15 @@ public class main {
 //        Node node3 = new Node("127.0.0.3",5003,"127.0.0.4",5004);
 //        Node node4 = new Node("127.0.0.4",5004,"127.0.0.5",5005);
 //        Node node5 = new Node("127.0.0.5",5005,"127.0.0.1",5001);
-        Node node1 = new Node("127.0.0.1",5001);
-        Node node2 = new Node("127.0.0.2",5002);
-        Node node3 = new Node("127.0.0.3",5003);
-        Node node4 = new Node("127.0.0.4",5001);
+        Node controller = new Node("127.0.0.15",5015);
+        Node node1 = new Node("127.0.0.1",5002);
+        Node node2 = new Node("127.0.0.2",5003);
+        Node node3 = new Node("127.0.0.3",5004);
+        Node node4 = new Node("127.0.0.4",5005);
         Node node5 = new Node("127.0.0.5",5001);
 
         List<Node> nodeList = new ArrayList<>();
+        nodeList.add(controller);
         nodeList.add(node1);
         nodeList.add(node2);
         nodeList.add(node3);
@@ -54,11 +56,14 @@ public class main {
             Thread.sleep(100);
         }
 
-        Thread t1 =new Thread(node1);
-        Thread t2 =new Thread(node2);
-        Thread t3 =new Thread(node3);
-        Thread t4 =new Thread(node4);
-        Thread t5 =new Thread(node5);
+        Thread tc = new Thread(controller);
+        Thread t1 = new Thread(node1);
+        Thread t2 = new Thread(node2);
+        Thread t3 = new Thread(node3);
+        Thread t4 = new Thread(node4);
+        Thread t5 = new Thread(node5);
+
+        tc.start();
         t5.start();
         t4.start();
         t3.start();

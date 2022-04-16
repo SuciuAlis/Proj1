@@ -9,8 +9,10 @@ import java.util.Map;
 public class GUI extends JFrame{
 
     private List<Node> m_nodeList;
-    private List<JTextField> jTextFieldList = new ArrayList<>();
+    private final List<JTextField> jTextFieldList = new ArrayList<>();
     private boolean m_startThreads = false;
+    private final JComboBox startNodeCB;
+    private final JComboBox endNodeCB;
 
     public GUI(List<Node> nodeList){
         m_nodeList = nodeList;
@@ -69,14 +71,14 @@ public class GUI extends JFrame{
         container.add(endNode);
 
         String[] nodeStrings = {"N1", "N2", "N3", "N4", "N5"};
-        JComboBox startNodeCB = new JComboBox(nodeStrings);
+        startNodeCB = new JComboBox(nodeStrings);
         startNodeCB.setSelectedIndex(4);
 //        nodesList.setBounds(110,260,80,20);
         startNodeCB.setBounds(260,80,60,20);
         container.add(startNodeCB);
         //System.out.println("INDEX LA NODE ------------>"+nodesList.getItemCount());
         //nodesList.addActionListener();
-        JComboBox endNodeCB = new JComboBox(nodeStrings);
+        endNodeCB = new JComboBox(nodeStrings);
         endNodeCB.setSelectedIndex(4);
 //        nodesList2.setBounds(110,300,80,20);
         endNodeCB.setBounds(260,120,60,20);
@@ -89,22 +91,15 @@ public class GUI extends JFrame{
 
         jButton.addActionListener(e -> {
             setNodes();
-            //setRoutingTable();
+            setRoutingTable();
         });
         sendData.addActionListener(e -> {
-            try {
-                System.out.println("NODUL START ALES:"+startNodeCB.getSelectedIndex());
-                System.out.println("NODUL END ALES:"+endNodeCB.getSelectedIndex());
-                m_nodeList.get(startNodeCB.getSelectedIndex()).sendPackageTo(m_nodeList.get(endNodeCB.getSelectedIndex()));
-                //m_nodeList.get(startNodeCB.getSelectedIndex()).sendPackage(m_nodeList.get(endNodeCB.getSelectedIndex()));
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            sendData();
         });
     }
 
     public void setNodes(){
-        for(int i=0;i<4;i++) {
+        for(int i=0;i<5;i++) {
             int targetNodeIndex = Integer.parseInt(jTextFieldList.get(i).getText().substring(1))-1;
             System.out.println("Local address for current node:::::"+m_nodeList.get(i).getM_localAddress());
             System.out.println("Local address for target node:::::"+m_nodeList.get(targetNodeIndex).getM_localAddress());
@@ -114,6 +109,17 @@ public class GUI extends JFrame{
         setM_startThreads(true);
     }
 
+    public void sendData(){
+        try {
+            System.out.println("NODUL START ALES:"+startNodeCB.getSelectedIndex());
+            System.out.println("NODUL END ALES:"+endNodeCB.getSelectedIndex());
+            m_nodeList.get(startNodeCB.getSelectedIndex()).sendPackageTo(m_nodeList.get(endNodeCB.getSelectedIndex()));
+            //m_nodeList.get(startNodeCB.getSelectedIndex()).sendPackage(m_nodeList.get(endNodeCB.getSelectedIndex()));
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+
     public void setRoutingTable(){
         for(Node currentNode: m_nodeList){
             Map<String, String> routing_table_map = new HashMap<>();
@@ -121,7 +127,7 @@ public class GUI extends JFrame{
                 routing_table_map.put(m_nodeList.get(i).getM_localAddress(),currentNode.getM_targetAddress());
                 System.out.println("**for node***"+currentNode.getM_localAddress()+"****destination***"+m_nodeList.get(i).getM_localAddress()+"***next_hop***"+currentNode.getM_targetAddress());
             }
-            currentNode.setM_routing_table_map(routing_table_map);
+            //currentNode.setM_routing_table_map(routing_table_map);
         }
     }
 
@@ -131,6 +137,14 @@ public class GUI extends JFrame{
 
     public void setM_startThreads(boolean m_startThreads) {
         this.m_startThreads = m_startThreads;
-        System.out.println("Start threads var was set:"+m_startThreads);
+        System.out.println("Start threads variable was set:"+ m_startThreads);
+    }
+
+    public List<Node> getM_nodeList() {
+        return m_nodeList;
+    }
+
+    public void setM_nodeList(List<Node> m_nodeList) {
+        this.m_nodeList = m_nodeList;
     }
 }
