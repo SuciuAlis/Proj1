@@ -76,16 +76,17 @@ public class Node implements Runnable{
                             System.out.println("ROUTING TABLE FOR NODE::_______"+ routingTable);
                             sentRoutingTable = true;
                             if(m_localAddress.equalsIgnoreCase("127.0.0.5")){
-                                break;
+//                                break;
+                                m_socket.close();
+                            }else{
+                                Socket socket3 = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
+                                DataOutputStream out = new DataOutputStream(socket3.getOutputStream());
+                                byte[] array = byteBuffer.array();
+                                out.write(array);
+                                //out.flush();
+                                socket3.shutdownOutput();
+                                socket3.close();
                             }
-                            Socket socket3 = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
-                            DataOutputStream out = new DataOutputStream(socket3.getOutputStream());
-                            byte[] array = byteBuffer.array();
-                            out.write(array);
-                            //out.flush();
-                            socket3.shutdownOutput();
-                            socket3.close();
-
                         }else{
                             DataInputStream in = new DataInputStream(m_socket.getInputStream());
                             byte[] buffer = new byte[100];
@@ -103,29 +104,26 @@ public class Node implements Runnable{
                             System.out.println("*_____ TARGET ADR****" + m_targetAddress);
                             System.out.println("*_____ TARGET PORT****" + m_targetPort);
                             if (m_localAddress.equalsIgnoreCase(destination)) {
-                                break;
+                                System.out.println("AM AJUNS LA DST:::"+destination);
+                                System.out.println("AM AJUNS LA DST:::"+m_destinationAddress);
+//                                break;
+                                m_socket.close();
+                            }else{
+                                Socket socket2 = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
+                                DataOutputStream out = new DataOutputStream(socket2.getOutputStream());
+                                ByteBuffer byteBuffer2 = ByteBuffer.allocate(100);
+                                byte[] destinationAddressBytes = m_destinationAddress.getBytes();
+                                byteBuffer2.putInt(destinationAddressBytes.length);
+                                byteBuffer2.put(destinationAddressBytes);
+                                byteBuffer2.putInt(number);
+                                byte[] array = byteBuffer2.array();
+                                out.write(array);
+                                //out.flush();
+                                socket2.shutdownOutput();
+                                socket2.close();
+                                //socket.close();
+                                m_socket.close();
                             }
-//                        if (m_stop){
-//                            break;
-//                        }
-//                    if (number==40025){
-//                        break;
-//                    }
-                            Socket socket2 = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
-                            DataOutputStream out = new DataOutputStream(socket2.getOutputStream());
-                            ByteBuffer byteBuffer2 = ByteBuffer.allocate(100);
-                            byte[] destinationAddressBytes = m_destinationAddress.getBytes();
-                            byteBuffer2.putInt(destinationAddressBytes.length);
-                            byteBuffer2.put(destinationAddressBytes);
-                            byteBuffer2.putInt(number);
-                            byte[] array = byteBuffer2.array();
-                            out.write(array);
-                        //out.flush();
-                            socket2.shutdownOutput();
-                            socket2.close();
-                        //socket.close();
-                        //m_socket.close();
-                        //}
                         }
                     }
                 }

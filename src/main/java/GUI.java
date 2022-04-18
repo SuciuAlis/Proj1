@@ -102,7 +102,9 @@ public class GUI extends JFrame{
     public void sendData(){
         try {
             System.out.println("NODUL START ALES:"+startNodeCB.getSelectedIndex());
+            System.out.println("LOCAL ADR START:"+m_nodeList.get(startNodeCB.getSelectedIndex()).getM_localAddress());
             System.out.println("NODUL END ALES:"+endNodeCB.getSelectedIndex());
+            System.out.println("LOCAL ADR END:"+m_nodeList.get(endNodeCB.getSelectedIndex()).getM_localAddress());
             m_nodeList.get(startNodeCB.getSelectedIndex()).sendPackageTo(m_nodeList.get(endNodeCB.getSelectedIndex()));
         } catch (IOException ioException) {
             ioException.printStackTrace();
