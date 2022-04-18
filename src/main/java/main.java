@@ -42,12 +42,12 @@ public class main {
         Node node5 = new Node("127.0.0.5",5001);
 
         List<Node> nodeList = new ArrayList<>();
-        nodeList.add(controller);
         nodeList.add(node1);
         nodeList.add(node2);
         nodeList.add(node3);
         nodeList.add(node4);
         nodeList.add(node5);
+        nodeList.add(controller);
 
         GUI gui = new GUI(nodeList);
         gui.setVisible(true);
@@ -56,12 +56,12 @@ public class main {
             Thread.sleep(100);
         }
 
-        Thread tc = new Thread(controller);
         Thread t1 = new Thread(node1);
         Thread t2 = new Thread(node2);
         Thread t3 = new Thread(node3);
         Thread t4 = new Thread(node4);
         Thread t5 = new Thread(node5);
+        Thread tc = new Thread(controller);
 
         tc.start();
         t5.start();
