@@ -60,40 +60,46 @@ public class Node implements Runnable{
                 System.out.println("Server started: "+m_localAddress+"-"+m_localPort);
                 System.out.println("Waiting for a client ...");
                 while(true){
-//                if(sentData) {
                     m_socket = m_serverSocket.accept();
                     if (m_socket.isConnected()) {
-                        if(!sentRoutingTable){
-                            DataInputStream in = new DataInputStream(m_socket.getInputStream());
+                        DataInputStream in = new DataInputStream(m_socket.getInputStream());
+                        byte[] buffer0 = new byte[1];
+                        System.out.println(in.read(buffer0));
+                        ByteBuffer byteBuffer0 = ByteBuffer.wrap(buffer0);
+                        byte b = byteBuffer0.get();
+                        System.out.println("CE E B: --->"+b);
+                        if (b==0){
                             byte[] buffer = new byte[1000];
                             System.out.println(in.read(buffer));
                             ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
                             int length = byteBuffer.getInt();
+                            System.out.println("LENGTH:::___________ "+length);
                             byte[] tableBytes = new byte[length];
                             byteBuffer.get(tableBytes);
                             String routingTable = new String(tableBytes);
                             m_routing_table_map = convertStringToMap(routingTable);
                             System.out.println("ROUTING TABLE FOR NODE::_______"+ routingTable);
-                            sentRoutingTable = true;
                             if(m_localAddress.equalsIgnoreCase("127.0.0.5")){
-//                                break;
                                 m_socket.close();
                             }else{
-                                Socket socket3 = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
-                                DataOutputStream out = new DataOutputStream(socket3.getOutputStream());
-                                byte[] array = byteBuffer.array();
+                                Socket socket = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
+                                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                                ByteBuffer byteBuffer2 = ByteBuffer.allocate(1000);
+                                byte[] routingTableBytes = routingTable.getBytes();
+                                byteBuffer2.put((byte)0);
+                                byteBuffer2.putInt(routingTableBytes.length);
+                                byteBuffer2.put(routingTableBytes);
+                                byte[] array = byteBuffer2.array();
                                 out.write(array);
-                                //out.flush();
-                                socket3.shutdownOutput();
-                                socket3.close();
+                                socket.shutdownOutput();
+                                socket.close();
                             }
                         }else{
-                            DataInputStream in = new DataInputStream(m_socket.getInputStream());
                             byte[] buffer = new byte[100];
                             System.out.println(in.read(buffer));
                             ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-                            int len = byteBuffer.getInt();
-                            byte[] destinationBytes = new byte[len];
+                            int length = byteBuffer.getInt();
+                            byte[] destinationBytes = new byte[length];
                             byteBuffer.get(destinationBytes);
                             String destination = new String(destinationBytes);
                             m_destinationAddress = destination;
@@ -105,23 +111,20 @@ public class Node implements Runnable{
                             System.out.println("*_____ TARGET PORT****" + m_targetPort);
                             if (m_localAddress.equalsIgnoreCase(destination)) {
                                 System.out.println("AM AJUNS LA DST:::"+destination);
-                                System.out.println("AM AJUNS LA DST:::"+m_destinationAddress);
-//                                break;
                                 m_socket.close();
                             }else{
-                                Socket socket2 = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
-                                DataOutputStream out = new DataOutputStream(socket2.getOutputStream());
+                                Socket socket = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
+                                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                                 ByteBuffer byteBuffer2 = ByteBuffer.allocate(100);
+                                byteBuffer2.put((byte) 1);
                                 byte[] destinationAddressBytes = m_destinationAddress.getBytes();
                                 byteBuffer2.putInt(destinationAddressBytes.length);
                                 byteBuffer2.put(destinationAddressBytes);
-                                byteBuffer2.putInt(number);
+                                byteBuffer2.putInt(40000);
                                 byte[] array = byteBuffer2.array();
                                 out.write(array);
-                                //out.flush();
-                                socket2.shutdownOutput();
-                                socket2.close();
-                                //socket.close();
+                                socket.shutdownOutput();
+                                socket.close();
                                 m_socket.close();
                             }
                         }
@@ -131,23 +134,21 @@ public class Node implements Runnable{
                 e.printStackTrace();
             }
         }
-
     };
 
     public void sendPackageTo(Node endNode) throws IOException {
         System.out.println("_____init_Local address****"+m_localAddress);
         System.out.println("_____init_Target address****"+m_targetAddress);
-//        System.out.println("_____init_Target port****"+ m_targetPort);
         Socket socket = new Socket(m_targetAddress,m_targetPort, InetAddress.getByName(m_localAddress),0);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         m_destinationAddress = endNode.getM_localAddress();
         ByteBuffer byteBuffer = ByteBuffer.allocate(100);
+        byteBuffer.put((byte)1);
         byte[] destinationAddressBytes = m_destinationAddress.getBytes();
         byteBuffer.putInt(destinationAddressBytes.length);
         byteBuffer.put(destinationAddressBytes);
         byteBuffer.putInt(40000);
         byte[] array = byteBuffer.array();
-//        System.out.println("FIRST SENT DATA: "+Arrays.toString(array));
         out.write(array);
         socket.shutdownOutput();
         socket.close();
@@ -160,6 +161,7 @@ public class Node implements Runnable{
         String routingTableString = getRoutingTableMapString(routing_table_map);
         //System.out.println("Routing Table String"+routingTableString);
         byte[] routingTableBytes = routingTableString.getBytes();
+        byteBuffer.put((byte)0);
         byteBuffer.putInt(routingTableBytes.length);
         byteBuffer.put(routingTableBytes);
         byte[] array = byteBuffer.array();
