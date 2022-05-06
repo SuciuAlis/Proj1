@@ -2,7 +2,6 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +16,6 @@ public class Node implements Runnable{
     private int m_targetPort;
     private Map<String, Map<String,String>> m_routing_table_map = new HashMap<>();
     private String m_destinationAddress = "";
-    private boolean sentData = false;
-    private boolean sentRoutingTable = false;
 
     public Node(String m_localAddress, int m_localPort) {
         this.m_localAddress = m_localAddress;
@@ -49,12 +46,20 @@ public class Node implements Runnable{
         this.m_targetPort = m_targetPort;
     }
 
+    public Map<String, Map<String, String>> getM_routing_table_map() {
+        return m_routing_table_map;
+    }
+
+    public void setM_routing_table_map(Map<String, Map<String, String>> m_routing_table_map) {
+        this.m_routing_table_map = m_routing_table_map;
+    }
+
     @Override
     public void run() {
         System.out.println("Thread is running...");
-        if (m_localAddress.equalsIgnoreCase("127.0.0.15")){
-
-        }else{
+//        if (m_localAddress.equalsIgnoreCase("127.0.0.15")){
+//
+//        }else{
             try {
                 m_serverSocket = new ServerSocket(m_localPort,5, InetAddress.getByName(m_localAddress));
                 System.out.println("Server started: "+m_localAddress+"-"+m_localPort);
@@ -67,7 +72,7 @@ public class Node implements Runnable{
                         System.out.println(in.read(buffer0));
                         ByteBuffer byteBuffer0 = ByteBuffer.wrap(buffer0);
                         byte b = byteBuffer0.get();
-                        System.out.println("CE E B: --->"+b);
+                        System.out.println("CE E first byte: --->"+b);
                         if (b==0){
                             byte[] buffer = new byte[1000];
                             System.out.println(in.read(buffer));
@@ -133,7 +138,7 @@ public class Node implements Runnable{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        //}
     };
 
     public void sendPackageTo(Node endNode) throws IOException {
@@ -142,13 +147,7 @@ public class Node implements Runnable{
         Socket socket = new Socket(m_targetAddress,m_targetPort, InetAddress.getByName(m_localAddress),0);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         m_destinationAddress = endNode.getM_localAddress();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(100);
-        byteBuffer.put((byte)1);
-        byte[] destinationAddressBytes = m_destinationAddress.getBytes();
-        byteBuffer.putInt(destinationAddressBytes.length);
-        byteBuffer.put(destinationAddressBytes);
-        byteBuffer.putInt(40000);
-        byte[] array = byteBuffer.array();
+        byte[] array = initialAllocateByteBufferAndPutData(100).array();
         out.write(array);
         socket.shutdownOutput();
         socket.close();
@@ -157,17 +156,29 @@ public class Node implements Runnable{
     public void sendRoutingTableTo(Node node, Map<String, Map<String, String>> routing_table_map) throws IOException {
         Socket socket = new Socket(node.m_localAddress,node.m_localPort, InetAddress.getByName(m_localAddress),0);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-        ByteBuffer byteBuffer = ByteBuffer.allocate(1000);
-        String routingTableString = getRoutingTableMapString(routing_table_map);
-        //System.out.println("Routing Table String"+routingTableString);
-        byte[] routingTableBytes = routingTableString.getBytes();
-        byteBuffer.put((byte)0);
-        byteBuffer.putInt(routingTableBytes.length);
-        byteBuffer.put(routingTableBytes);
-        byte[] array = byteBuffer.array();
+        m_routing_table_map = routing_table_map;
+        byte[] array = initialAllocateByteBufferAndPutData(1000).array();
         out.write(array);
         socket.shutdownOutput();
         socket.close();
+    }
+
+    private ByteBuffer initialAllocateByteBufferAndPutData(int size){
+        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
+        if(size == 100){
+            byteBuffer.put((byte)1);
+            byte[] destinationAddressBytes = m_destinationAddress.getBytes();
+            byteBuffer.putInt(destinationAddressBytes.length);
+            byteBuffer.put(destinationAddressBytes);
+            byteBuffer.putInt(40000);
+        }else if(size == 1000){
+            byteBuffer.put((byte)0);
+            String routingTableString = getRoutingTableMapString(m_routing_table_map);
+            byte[] routingTableBytes = routingTableString.getBytes();
+            byteBuffer.putInt(routingTableBytes.length);
+            byteBuffer.put(routingTableBytes);
+        }
+        return byteBuffer;
     }
 
     public String convertMapToString(Map<String,String> routingTableMap) {
@@ -181,7 +192,20 @@ public class Node implements Runnable{
 
     public Map<String, Map<String,String>> convertStringToMap(String routingTableString){
         Map<String, Map<String,String>> routingTableMap = new HashMap<>();
-        //....
+        String[] nodesStringFromTable = routingTableString.split("}");
+        for (String s : nodesStringFromTable) {
+            String[] nodes = s.split("=", 2);
+            String[] nodesD = nodes[1].split(",");
+            Map<String, String> tableForNode = new HashMap<>();
+            for (String value : nodesD) {
+                String[] addresses = value.split("=");
+                addresses[0] = addresses[0].replace("{", "");
+                tableForNode.put(addresses[0].replaceAll("\\s+", ""), addresses[1]);
+            }
+            nodes[0] = nodes[0].replace("{", "");
+            nodes[0] = nodes[0].replace(",", "");
+            routingTableMap.put(nodes[0].replaceAll("\\s+", ""), tableForNode);
+        }
         return routingTableMap;
     }
 

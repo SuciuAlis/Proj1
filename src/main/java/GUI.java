@@ -1,18 +1,17 @@
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class GUI extends JFrame{
 
-    private List<Node> m_nodeList;
+    private final List<Node> m_nodeList;
     private final List<JTextField> jTextFieldList = new ArrayList<>();
     private boolean m_startThreads = false;
     private final JComboBox startNodeCB;
     private final JComboBox endNodeCB;
+    private final JComboBox deleteNodeCB;
     Container container;
 
     public GUI(List<Node> nodeList){
@@ -28,8 +27,9 @@ public class GUI extends JFrame{
         addLabel("N2",20,60,20,20);
         addLabel("N3",20,100,20,20);
         addLabel("N4",20,140,20,20);
-        addLabel("Start Node",180,80,100,20);
-        addLabel("End Node",180,120,100,20);
+        addLabel("Start Node",200,60,100,20);
+        addLabel("End Node",200,100,100,20);
+        addLabel("Remove Node from network:",200,200,180,20);
 
         addTextField(50,20,100,20);
         addTextField(50,60,100,20);
@@ -37,28 +37,34 @@ public class GUI extends JFrame{
         addTextField(50,140,100,20);
 
         String[] nodeStrings = {"N1", "N2", "N3", "N4", "N5"};
+//        String[] nodeStrings = new String[]{};
+//        int length = 0;
+//        for(int i = 0; i<m_nodeList.size();i++){
+//            nodeStrings[length++] = "N"+i;
+//        }
         startNodeCB = new JComboBox(nodeStrings);
-        startNodeCB.setSelectedIndex(4);
-//        nodesList.setBounds(110,260,80,20);
-        startNodeCB.setBounds(260,80,60,20);
+        startNodeCB.setBounds(280,60,60,20);
         container.add(startNodeCB);
-        //System.out.println("INDEX LA NODE ------------>"+nodesList.getItemCount());
-        //nodesList.addActionListener();
         endNodeCB = new JComboBox(nodeStrings);
-        endNodeCB.setSelectedIndex(4);
-//        nodesList2.setBounds(110,300,80,20);
-        endNodeCB.setBounds(260,120,60,20);
+        endNodeCB.setBounds(280,100,60,20);
         container.add(endNodeCB);
+        deleteNodeCB = new JComboBox(nodeStrings);
+        deleteNodeCB.setBounds(200,230,60,20);
+        container.add(deleteNodeCB);
 
-        JButton jButton = new JButton("Save");
-        jButton.setBounds(50,220,100,20);
-        container.add(jButton);
+        JButton saveButton = new JButton("Save");
+        saveButton.setBounds(50,200,100,20);
+        container.add(saveButton);
 
-        JButton sendData = new JButton("Send Data");
-        sendData.setBounds(190,160,100,20);
-        container.add(sendData);
+        JButton sendDataButton = new JButton("Send Data");
+        sendDataButton.setBounds(220,150,100,20);
+        container.add(sendDataButton);
 
-        jButton.addActionListener(e -> {
+        JButton deleteNodeButton = new JButton("Delete");
+        deleteNodeButton.setBounds(220,280,100,20);
+        container.add(deleteNodeButton);
+
+        saveButton.addActionListener(e -> {
             try {
                 setNodes();
                 setController();
@@ -66,8 +72,17 @@ public class GUI extends JFrame{
                 ioException.printStackTrace();
             }
         });
-        sendData.addActionListener(e -> {
+        sendDataButton.addActionListener(e -> {
             sendData();
+        });
+
+        deleteNodeButton.addActionListener(e -> {
+            try {
+                deleteNode();
+                setController();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         });
     }
 
@@ -99,6 +114,33 @@ public class GUI extends JFrame{
         setM_startThreads(true);
     }
 
+    public void deleteNode(){
+        System.out.println("Node to delete: "+deleteNodeCB.getSelectedIndex());
+        Node deletedNode = m_nodeList.get(deleteNodeCB.getSelectedIndex());
+        Map<String, Map<String,String>> newRoutingTableMap = new HashMap<>();
+        for(int i=0;i<4;i++){
+            if (m_nodeList.get(i).getM_targetAddress().equalsIgnoreCase(deletedNode.getM_localAddress())){
+                Node prevNode = m_nodeList.get(i);
+                String prevN = "N"+(i+1);
+                String nodeDel = "N"+(deleteNodeCB.getSelectedIndex()+1);
+                Set<String> keys = prevNode.getM_routing_table_map().get(prevN).keySet();
+                Map<String,String> newMap = new HashMap<>();
+                for(String k : keys){
+                    if(!k.equalsIgnoreCase(deletedNode.getM_localAddress())){
+                        newMap.put(k,deletedNode.getM_routing_table_map().get(nodeDel).get(k));
+                    }
+                }
+                newRoutingTableMap.put(prevN,newMap);
+                m_nodeList.get(i).setM_targetAddress(deletedNode.getM_targetAddress());
+                m_nodeList.get(i).setM_targetPort(deletedNode.getM_targetPort());
+            }else if(!m_nodeList.get(i).getM_localAddress().equalsIgnoreCase(deletedNode.getM_localAddress())){
+                String otherNode = "N"+(i+1);
+                System.out.println("OTHER NODE:::::"+otherNode);
+                newRoutingTableMap.put(otherNode,m_nodeList.get(i).getM_routing_table_map().get(otherNode));
+            }
+        }
+        System.out.println("GATA");
+    }
     public void sendData(){
         try {
             System.out.println("NODUL START ALES:"+startNodeCB.getSelectedIndex());
