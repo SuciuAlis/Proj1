@@ -17,7 +17,6 @@ public class main {
 ////        processBuild.startProcess("127.0.0.1","5001","127.0.0.2","5002");
 ////        processBuild.startProcess("127.0.0.2","5002","127.0.0.3","5003");
 ////        processBuild.startProcess("127.0.0.3","5003","127.0.0.1","5001");
-////
 ////    }
     public static void main(String[] args) throws IOException, InterruptedException, ExecutionException, TimeoutException {
     //System.out.println("**"+args[0]+"**"+args[1]+"**"+args[2]+"**"+args[3]);
@@ -70,5 +69,5 @@ public class main {
         t2.start();
         t1.start();
 
-}
+    }
 }

@@ -17,24 +17,25 @@ public class GUI extends JFrame{
     public GUI(List<Node> nodeList){
         m_nodeList = nodeList;
         this.setBounds(10,10,400,400);
-        this.setTitle("Set the path");
+        this.setTitle("SDN simulation app");
         this.setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         container = getContentPane();
         container.setLayout(null);
 
-        addLabel("N1",20,20,20,20);
-        addLabel("N2",20,60,20,20);
-        addLabel("N3",20,100,20,20);
-        addLabel("N4",20,140,20,20);
+        addLabel("Set the path for nodes",20,20,160,20);
+        addLabel("N1",20,60,20,20);
+        addLabel("N2",20,100,20,20);
+        addLabel("N3",20,140,20,20);
+        addLabel("N4",20,180,20,20);
         addLabel("Start Node",200,60,100,20);
         addLabel("End Node",200,100,100,20);
         addLabel("Remove Node from network:",200,200,180,20);
 
-        addTextField(50,20,100,20);
         addTextField(50,60,100,20);
         addTextField(50,100,100,20);
         addTextField(50,140,100,20);
+        addTextField(50,180,100,20);
 
         String[] nodeStrings = {"N1", "N2", "N3", "N4", "N5"};
 //        String[] nodeStrings = new String[]{};
@@ -53,7 +54,7 @@ public class GUI extends JFrame{
         container.add(deleteNodeCB);
 
         JButton saveButton = new JButton("Save");
-        saveButton.setBounds(50,200,100,20);
+        saveButton.setBounds(50,280,100,20);
         container.add(saveButton);
 
         JButton sendDataButton = new JButton("Send Data");
@@ -103,6 +104,12 @@ public class GUI extends JFrame{
         m_nodeList.get(m_nodeList.size()-1).sendRoutingTableTo(m_nodeList.get(0),getRoutingTable());
     }
 
+    public void sendNewRoutingTable(Map<String, Map<String,String>> newRoutingTableMap) throws IOException {
+        m_nodeList.get(m_nodeList.size()-1).setM_routing_table_map(newRoutingTableMap);
+        m_nodeList.get(m_nodeList.size()-1).sendRoutingTableTo(m_nodeList.get(0),newRoutingTableMap);
+        //m_nodeList.get(m_nodeList.size()-1).sendRoutingTableTo(m_nodeList.get(0),getRoutingTable());
+    }
+
     public void setNodes(){
         for(int i=0;i<4;i++){
             int targetNodeIndex = Integer.parseInt(jTextFieldList.get(i).getText().substring(1))-1;
@@ -114,7 +121,7 @@ public class GUI extends JFrame{
         setM_startThreads(true);
     }
 
-    public void deleteNode(){
+    public void deleteNode() throws IOException {
         System.out.println("Node to delete: "+deleteNodeCB.getSelectedIndex());
         Node deletedNode = m_nodeList.get(deleteNodeCB.getSelectedIndex());
         Map<String, Map<String,String>> newRoutingTableMap = new HashMap<>();
@@ -139,7 +146,9 @@ public class GUI extends JFrame{
                 newRoutingTableMap.put(otherNode,m_nodeList.get(i).getM_routing_table_map().get(otherNode));
             }
         }
-        System.out.println("GATA");
+        m_nodeList.remove(deleteNodeCB.getSelectedIndex());
+        sendNewRoutingTable(newRoutingTableMap);
+        //System.out.println("GATA");
     }
     public void sendData(){
         try {

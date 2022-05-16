@@ -78,7 +78,6 @@ public class Node implements Runnable{
                             System.out.println(in.read(buffer));
                             ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
                             int length = byteBuffer.getInt();
-                            System.out.println("LENGTH:::___________ "+length);
                             byte[] tableBytes = new byte[length];
                             byteBuffer.get(tableBytes);
                             String routingTable = new String(tableBytes);
