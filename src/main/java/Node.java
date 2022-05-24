@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Node implements Runnable{
-
+//public class Node implements Runnable{
+public class Node{
     private ServerSocket m_serverSocket;
     private Socket m_socket;
     private String m_localAddress;
@@ -20,7 +20,10 @@ public class Node implements Runnable{
     public Node(String m_localAddress, int m_localPort) {
         this.m_localAddress = m_localAddress;
         this.m_localPort = m_localPort;
+        //run();
     }
+
+    public Node(){}
 
     public String getM_localAddress() {
         return m_localAddress;
@@ -54,7 +57,7 @@ public class Node implements Runnable{
         this.m_routing_table_map = m_routing_table_map;
     }
 
-    @Override
+    //@Override
     public void run() {
         System.out.println("Thread is running...");
 //        if (m_localAddress.equalsIgnoreCase("127.0.0.15")){
