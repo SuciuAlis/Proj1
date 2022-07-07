@@ -57,9 +57,6 @@ public class Node implements Runnable{
     @Override
     public void run() {
         System.out.println("Thread is running...");
-//        if (m_localAddress.equalsIgnoreCase("127.0.0.15")){
-//
-//        }else{
             try {
                 m_serverSocket = new ServerSocket(m_localPort,5, InetAddress.getByName(m_localAddress));
                 System.out.println("Server started: "+m_localAddress+"-"+m_localPort);
@@ -69,27 +66,27 @@ public class Node implements Runnable{
                     if (m_socket.isConnected()) {
                         DataInputStream in = new DataInputStream(m_socket.getInputStream());
                         byte[] buffer0 = new byte[1];
-                        System.out.println(in.read(buffer0));
+                        in.read(buffer0);
                         ByteBuffer byteBuffer0 = ByteBuffer.wrap(buffer0);
                         byte b = byteBuffer0.get();
-                        System.out.println("CE E first byte: --->"+b);
+                        System.out.println("First byte from the packet: "+b);
                         if (b==0){
-                            byte[] buffer = new byte[1000];
-                            System.out.println(in.read(buffer));
+                            byte[] buffer = new byte[1024];
+                            in.read(buffer);
                             ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
                             int length = byteBuffer.getInt();
-                            System.out.println("LENGTH:::___________ "+length);
+                            System.out.println("Length of the routing table: "+length);
                             byte[] tableBytes = new byte[length];
                             byteBuffer.get(tableBytes);
                             String routingTable = new String(tableBytes);
                             m_routing_table_map = convertStringToMap(routingTable);
-                            System.out.println("ROUTING TABLE FOR NODE::_______"+ routingTable);
+                            System.out.println("Received routing table: "+ routingTable);
                             if(m_localAddress.equalsIgnoreCase("127.0.0.5")){
                                 m_socket.close();
                             }else{
                                 Socket socket = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
                                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                                ByteBuffer byteBuffer2 = ByteBuffer.allocate(1000);
+                                ByteBuffer byteBuffer2 = ByteBuffer.allocate(1024);
                                 byte[] routingTableBytes = routingTable.getBytes();
                                 byteBuffer2.put((byte)0);
                                 byteBuffer2.putInt(routingTableBytes.length);
@@ -101,21 +98,22 @@ public class Node implements Runnable{
                             }
                         }else{
                             byte[] buffer = new byte[100];
-                            System.out.println(in.read(buffer));
+                            in.read(buffer);
                             ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
                             int length = byteBuffer.getInt();
                             byte[] destinationBytes = new byte[length];
                             byteBuffer.get(destinationBytes);
                             String destination = new String(destinationBytes);
                             m_destinationAddress = destination;
-                            System.out.println("___________Destination____" + destination);
+                            System.out.println("_____Destination address_____" + destination);
                             int number = byteBuffer.getInt() + 1;
-                            System.out.println("*_____ NR**** " + number);
-                            System.out.println("*_____ LOCAL ADR****" + m_localAddress);
-                            System.out.println("*_____ TARGET ADR****" + m_targetAddress);
-                            System.out.println("*_____ TARGET PORT****" + m_targetPort);
+                            System.out.println("_____The number received_____" + number);
+                            System.out.println("_____Local address_____" + m_localAddress);
+                            System.out.println("_____Local port_____" + m_localPort);
+                            System.out.println("_____Target address_____" + m_targetAddress);
+                            System.out.println("_____Target port_____" + m_targetPort);
                             if (m_localAddress.equalsIgnoreCase(destination)) {
-                                System.out.println("AM AJUNS LA DST:::"+destination);
+                                System.out.println("Packet arrived at destination: "+destination);
                                 m_socket.close();
                             }else{
                                 Socket socket = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
@@ -142,8 +140,8 @@ public class Node implements Runnable{
     };
 
     public void sendPackageTo(Node endNode) throws IOException {
-        System.out.println("_____init_Local address****"+m_localAddress);
-        System.out.println("_____init_Target address****"+m_targetAddress);
+        System.out.println("_____Initial Local Address_____"+m_localAddress);
+        System.out.println("_____Initial Target Address_____"+m_targetAddress);
         Socket socket = new Socket(m_targetAddress,m_targetPort, InetAddress.getByName(m_localAddress),0);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         m_destinationAddress = endNode.getM_localAddress();
@@ -153,11 +151,11 @@ public class Node implements Runnable{
         socket.close();
     }
 
-    public void sendRoutingTableTo(Node node, Map<String, Map<String, String>> routing_table_map) throws IOException {
-        Socket socket = new Socket(node.m_localAddress,node.m_localPort, InetAddress.getByName(m_localAddress),0);
+    public void sendRoutingTable(Map<String, Map<String, String>> routing_table_map) throws IOException {
+        Socket socket = new Socket(m_targetAddress,m_targetPort, InetAddress.getByName(m_localAddress),0);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         m_routing_table_map = routing_table_map;
-        byte[] array = initialAllocateByteBufferAndPutData(1000).array();
+        byte[] array = initialAllocateByteBufferAndPutData(1024).array();
         out.write(array);
         socket.shutdownOutput();
         socket.close();
@@ -171,7 +169,7 @@ public class Node implements Runnable{
             byteBuffer.putInt(destinationAddressBytes.length);
             byteBuffer.put(destinationAddressBytes);
             byteBuffer.putInt(40000);
-        }else if(size == 1000){
+        }else if(size == 1024){
             byteBuffer.put((byte)0);
             String routingTableString = getRoutingTableMapString(m_routing_table_map);
             byte[] routingTableBytes = routingTableString.getBytes();
@@ -209,8 +207,26 @@ public class Node implements Runnable{
         return routingTableMap;
     }
 
+//    public String getRoutingTableMapString(Map<String, Map<String, String>> routing_table_map){ // old
+//        String[] nodesForMap = new String[]{"N1", "N2", "N3", "N4","N5"};
+//        Map<String,String> nodesMap = new HashMap<>();
+//        for (int i=0;i<routing_table_map.size()-1;i++){
+//            nodesMap.put(nodesForMap[i],convertMapToString(routing_table_map.get(nodesForMap[i])));
+//        }
+//        return convertMapToString(nodesMap);
+//    }
     public String getRoutingTableMapString(Map<String, Map<String, String>> routing_table_map){
-        String[] nodesForMap = new String[]{"N1", "N2", "N3", "N4","N5"};
+        String[] nodesForMap = routing_table_map.keySet().toArray(new String[0]);       //ordine diferita fata de Windows a key urilor
+        for(int i=0;i<nodesForMap.length;i++){
+            for(int j=0;j<nodesForMap.length-1;j++){
+                int l = nodesForMap[i].length()-1;
+                if(nodesForMap[i].charAt(l)<nodesForMap[j].charAt(l)){
+                    String aux=nodesForMap[i];
+                    nodesForMap[i]=nodesForMap[j];
+                    nodesForMap[j] = aux;
+                }
+            }
+        }
         Map<String,String> nodesMap = new HashMap<>();
         for (int i=0;i<routing_table_map.size()-1;i++){
             nodesMap.put(nodesForMap[i],convertMapToString(routing_table_map.get(nodesForMap[i])));
