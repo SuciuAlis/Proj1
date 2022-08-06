@@ -17,7 +17,7 @@ public class GUI extends JFrame{
     public GUI(List<Node> nodeList){
         m_nodeList = nodeList;
         this.setBounds(10,10,400,400);
-        this.setTitle("Set the path");
+        this.setTitle("SDN simulation app");
         this.setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         container = getContentPane();
@@ -112,7 +112,7 @@ public class GUI extends JFrame{
         Node deletedNode = m_nodeList.get(deleteNodeCB.getSelectedIndex());
         System.out.println("Node address: "+deletedNode.getM_localAddress());
         Map<String, Map<String,String>> newRoutingTableMap = new HashMap<>();
-        for(int i=0;i<m_nodeList.size()-1;i++){
+        for(int i=0;i<m_nodeList.size()-2;i++){
             if (m_nodeList.get(i).getM_targetAddress() == null){
                 newRoutingTableMap.put(m_nodeList.get(i).getM_localAddress(),new HashMap<>());
             }
@@ -178,7 +178,7 @@ public class GUI extends JFrame{
 
     public Map<String, Map<String, String>> getRoutingTable(){
         Map<String, Map<String, String>> routing_table_map = new HashMap<>();
-        for(int i=0;i<m_nodeList.size()-1;i++){
+        for(int i=0;i<m_nodeList.size()-2;i++){
             Map<String,String> nodeRoutingTable = new HashMap<>();
             for (int j=i+1;j<m_nodeList.size()-1;j++){
                 nodeRoutingTable.put(m_nodeList.get(j).getM_localAddress(),m_nodeList.get(i).getM_targetAddress());
@@ -195,13 +195,5 @@ public class GUI extends JFrame{
     public void setM_startThreads(boolean m_startThreads) {
         this.m_startThreads = m_startThreads;
         System.out.println("Start threads variable was set:"+ m_startThreads);
-    }
-
-    public String[] getNodeStrings() {
-        return nodeStrings;
-    }
-
-    public void setNodeStrings(String[] nodeStrings) {
-        this.nodeStrings = nodeStrings;
     }
 }

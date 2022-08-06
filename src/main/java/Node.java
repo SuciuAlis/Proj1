@@ -79,7 +79,9 @@ public class Node implements Runnable{
                             byte[] tableBytes = new byte[length];
                             byteBuffer.get(tableBytes);
                             String routingTable = new String(tableBytes);
-                            m_routing_table_map = convertStringToMap(routingTable);
+                            setM_routing_table_map(convertStringToMap(routingTable));
+                            //m_routing_table_map = convertStringToMap(routingTable);
+                            System.out.println("SUNT NODUL : : : "+m_localAddress);
                             System.out.println("Received routing table: "+ routingTable);
                             if(m_localAddress.equalsIgnoreCase("127.0.0.5")){
                                 m_socket.close();
@@ -87,7 +89,10 @@ public class Node implements Runnable{
                                 Socket socket = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
                                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                                 ByteBuffer byteBuffer2 = ByteBuffer.allocate(1024);
-                                byte[] routingTableBytes = routingTable.getBytes();
+                                String routingTable2 = getRoutingTableMapString(m_routing_table_map);
+//                                System.out.println("CU METODA -------------"+routingTable2);
+//                                System.out.println("CE A PRIMIT---------"+ routingTable);
+                                byte[] routingTableBytes = routingTable2.getBytes();
                                 byteBuffer2.put((byte)0);
                                 byteBuffer2.putInt(routingTableBytes.length);
                                 byteBuffer2.put(routingTableBytes);
@@ -114,7 +119,6 @@ public class Node implements Runnable{
                             System.out.println("_____Target port_____" + m_targetPort);
                             if (m_localAddress.equalsIgnoreCase(destination)) {
                                 System.out.println("Packet arrived at destination: "+destination);
-                                m_socket.close();
                             }else{
                                 Socket socket = new Socket(m_targetAddress, m_targetPort, InetAddress.getByName(m_localAddress), 0);
                                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -128,15 +132,14 @@ public class Node implements Runnable{
                                 out.write(array);
                                 socket.shutdownOutput();
                                 socket.close();
-                                m_socket.close();
                             }
+                            m_socket.close();
                         }
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        //}
     };
 
     public void sendPackageTo(Node endNode) throws IOException {
@@ -228,7 +231,7 @@ public class Node implements Runnable{
             }
         }
         Map<String,String> nodesMap = new HashMap<>();
-        for (int i=0;i<routing_table_map.size()-1;i++){
+        for (int i=0;i<routing_table_map.size();i++){
             nodesMap.put(nodesForMap[i],convertMapToString(routing_table_map.get(nodesForMap[i])));
         }
         return convertMapToString(nodesMap);
