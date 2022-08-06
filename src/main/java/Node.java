@@ -3,8 +3,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Node implements Runnable{
 
@@ -80,8 +79,6 @@ public class Node implements Runnable{
                             byteBuffer.get(tableBytes);
                             String routingTable = new String(tableBytes);
                             setM_routing_table_map(convertStringToMap(routingTable));
-                            //m_routing_table_map = convertStringToMap(routingTable);
-                            System.out.println("SUNT NODUL : : : "+m_localAddress);
                             System.out.println("Received routing table: "+ routingTable);
                             if(m_localAddress.equalsIgnoreCase("127.0.0.5")){
                                 m_socket.close();
@@ -90,8 +87,6 @@ public class Node implements Runnable{
                                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                                 ByteBuffer byteBuffer2 = ByteBuffer.allocate(1024);
                                 String routingTable2 = getRoutingTableMapString(m_routing_table_map);
-//                                System.out.println("CU METODA -------------"+routingTable2);
-//                                System.out.println("CE A PRIMIT---------"+ routingTable);
                                 byte[] routingTableBytes = routingTable2.getBytes();
                                 byteBuffer2.put((byte)0);
                                 byteBuffer2.putInt(routingTableBytes.length);
@@ -210,15 +205,13 @@ public class Node implements Runnable{
         return routingTableMap;
     }
 
-//    public String getRoutingTableMapString(Map<String, Map<String, String>> routing_table_map){ // old
-//        String[] nodesForMap = new String[]{"N1", "N2", "N3", "N4","N5"};
-//        Map<String,String> nodesMap = new HashMap<>();
-//        for (int i=0;i<routing_table_map.size()-1;i++){
-//            nodesMap.put(nodesForMap[i],convertMapToString(routing_table_map.get(nodesForMap[i])));
-//        }
-//        return convertMapToString(nodesMap);
-//    }
     public String getRoutingTableMapString(Map<String, Map<String, String>> routing_table_map){
+        //versiunea care merge pe Java 1.8 dar nu pe Java 11
+//        String[] nodesForMap = routing_table_map.keySet().toArray(new String[0]);
+//        List<String> arrayList = Arrays.asList(nodesForMap);
+//        Collections.reverse(arrayList);
+//        String[] nodesForMapInv = (String[]) arrayList.toArray();
+
         String[] nodesForMap = routing_table_map.keySet().toArray(new String[0]);       //ordine diferita fata de Windows a key urilor
         for(int i=0;i<nodesForMap.length;i++){
             for(int j=0;j<nodesForMap.length-1;j++){
