@@ -139,25 +139,6 @@ public class GUI extends JFrame{
             }
         }
         System.out.println("Delete node index::"+deleteNodeCB.getSelectedIndex());
-//        m_nodeList.remove(deleteNodeCB.getSelectedIndex());
-//        System.out.println("***********"+deleteNodeCB.getComponentCount());
-//        System.out.println(deleteNodeCB.size());
-////        startNodeCB.remove(deleteNodeCB.getSelectedIndex());
-////        endNodeCB.remove(deleteNodeCB.getSelectedIndex());
-////        deleteNodeCB.remove(deleteNodeCB.getSelectedIndex());
-//        System.out.println("THE INDEX _____"+deleteNodeCB.getSelectedIndex());
-//        deleteNodeCB.remove(deleteNodeCB.getSelectedIndex());
-
-        String[] newNodeStrings = new String[20];
-        int index=0;
-        for(int node=0;node<m_nodeList.size()-1;node++) {
-            newNodeStrings[index] = m_nodeList.get(node).getM_localAddress().substring(m_nodeList.get(node).getM_localAddress().length() - 1);
-            index++;
-        }
-//        System.out.println("THE NEW ROUTING TABLE:::::"+newRoutingTableMap);
-//        for(Node node: m_nodeList){
-//            node.setM_routing_table_map(newRoutingTableMap);
-//        }
         m_nodeList.get(m_nodeList.size()-1).sendRoutingTable(newRoutingTableMap);
     }
     public void sendData(){

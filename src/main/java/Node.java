@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 public class Node implements Runnable{
-
     private ServerSocket m_serverSocket;
     private Socket m_socket;
     private String m_localAddress;
@@ -70,7 +69,7 @@ public class Node implements Runnable{
                         byte b = byteBuffer0.get();
                         System.out.println("First byte from the packet: "+b);
                         if (b==0){
-                            byte[] buffer = new byte[1024];
+                            byte[] buffer = new byte[1023];
                             in.read(buffer);
                             ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
                             int length = byteBuffer.getInt();
@@ -97,7 +96,7 @@ public class Node implements Runnable{
                                 socket.close();
                             }
                         }else{
-                            byte[] buffer = new byte[100];
+                            byte[] buffer = new byte[99];
                             in.read(buffer);
                             ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
                             int length = byteBuffer.getInt();
@@ -105,8 +104,8 @@ public class Node implements Runnable{
                             byteBuffer.get(destinationBytes);
                             String destination = new String(destinationBytes);
                             m_destinationAddress = destination;
-                            System.out.println("_____Destination address_____" + destination);
                             int number = byteBuffer.getInt() + 1;
+                            System.out.println("_____Destination address_____" + destination);
                             System.out.println("_____The number received_____" + number);
                             System.out.println("_____Local address_____" + m_localAddress);
                             System.out.println("_____Local port_____" + m_localPort);
@@ -122,7 +121,7 @@ public class Node implements Runnable{
                                 byte[] destinationAddressBytes = m_destinationAddress.getBytes();
                                 byteBuffer2.putInt(destinationAddressBytes.length);
                                 byteBuffer2.put(destinationAddressBytes);
-                                byteBuffer2.putInt(40000);
+                                byteBuffer2.putInt(number);
                                 byte[] array = byteBuffer2.array();
                                 out.write(array);
                                 socket.shutdownOutput();
@@ -143,7 +142,7 @@ public class Node implements Runnable{
         Socket socket = new Socket(m_targetAddress,m_targetPort, InetAddress.getByName(m_localAddress),0);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         m_destinationAddress = endNode.getM_localAddress();
-        byte[] array = initialAllocateByteBufferAndPutData(100).array();
+        byte[] array = allocateByteBufferAndPutData(100).array();
         out.write(array);
         socket.shutdownOutput();
         socket.close();
@@ -153,13 +152,13 @@ public class Node implements Runnable{
         Socket socket = new Socket(m_targetAddress,m_targetPort, InetAddress.getByName(m_localAddress),0);
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         m_routing_table_map = routing_table_map;
-        byte[] array = initialAllocateByteBufferAndPutData(1024).array();
+        byte[] array = allocateByteBufferAndPutData(1024).array();
         out.write(array);
         socket.shutdownOutput();
         socket.close();
     }
 
-    private ByteBuffer initialAllocateByteBufferAndPutData(int size){
+    private ByteBuffer allocateByteBufferAndPutData(int size){
         ByteBuffer byteBuffer = ByteBuffer.allocate(size);
         if(size == 100){
             byteBuffer.put((byte)1);
@@ -206,13 +205,7 @@ public class Node implements Runnable{
     }
 
     public String getRoutingTableMapString(Map<String, Map<String, String>> routing_table_map){
-        //versiunea care merge pe Java 1.8 dar nu pe Java 11
-//        String[] nodesForMap = routing_table_map.keySet().toArray(new String[0]);
-//        List<String> arrayList = Arrays.asList(nodesForMap);
-//        Collections.reverse(arrayList);
-//        String[] nodesForMapInv = (String[]) arrayList.toArray();
-
-        String[] nodesForMap = routing_table_map.keySet().toArray(new String[0]);       //ordine diferita fata de Windows a key urilor
+        String[] nodesForMap = routing_table_map.keySet().toArray(new String[0]);
         for(int i=0;i<nodesForMap.length;i++){
             for(int j=0;j<nodesForMap.length-1;j++){
                 int l = nodesForMap[i].length()-1;
@@ -229,5 +222,4 @@ public class Node implements Runnable{
         }
         return convertMapToString(nodesMap);
     }
-
 }
