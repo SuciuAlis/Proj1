@@ -132,8 +132,7 @@ public class Node {
         String[] addressAndPort = m_routing_table_map.get(m_localAddress).get("192.168.0.6").split(":");
         System.out.println("[INFO - setTargetAddressAndPort()] - Target address and port are: " + Arrays.toString(addressAndPort));
         //Windows
-//        System.out.println("DAAA 101"+m_routing_table_map.get(m_localAddress).get("127.0.0.5"));
-//        String[] addressAndPort = m_routing_table_map.get(m_localAddress).get("127.0.0.5").split(":");
+        //String[] addressAndPort = m_routing_table_map.get(m_localAddress).get("127.0.0.5").split(":");
         m_targetAddress = addressAndPort[0];
         m_targetPort = Integer.parseInt(addressAndPort[1]);
         System.out.println("[INFO - setTargetAddressAndPort()] - The local address and port are: " + m_localAddress + ":" + m_localPort);
@@ -194,7 +193,6 @@ public class Node {
 //        System.out.println("[INFO - main()] - Node was created with address and port: " + getLocalIpAddress() + ":" + 26150);
 //        Node node = new Node("127.0.0.1",26150);
         node.run();
-
     }
 
     public static String getLocalIpAddress() throws SocketException {
