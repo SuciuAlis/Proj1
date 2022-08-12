@@ -110,36 +110,31 @@ public class GUI extends JFrame{
 
     public void deleteNode() throws IOException {
         System.out.println("Node to delete: "+deleteNodeCB.getSelectedIndex());
-        Node deletedNode = m_nodeList.get(deleteNodeCB.getSelectedIndex()+1);
-        System.out.println("Node address: "+deletedNode.getM_localAddress());
+        Node deleteNode = m_nodeList.get(deleteNodeCB.getSelectedIndex()+1);
+        System.out.println("Node address: "+deleteNode.getM_localAddress());
         Map<String, Map<String,String>> newRoutingTableMap = new HashMap<>();
         for(int i=0;i<m_nodeList.size()-2;i++){
-            if (m_nodeList.get(i).getM_targetAddress().equalsIgnoreCase(deletedNode.getM_localAddress())) {
+            if (m_nodeList.get(i).getM_targetAddress().equalsIgnoreCase(deleteNode.getM_localAddress())) {
                 Node previousNode = m_nodeList.get(i);
-                String prevN = previousNode.getM_localAddress();
-                String nodeToDelete = m_nodeList.get(deleteNodeCB.getSelectedIndex()).getM_localAddress();
-                Map<String, Map<String, String>> theRoutingTableMap = previousNode.getM_routing_table_map();
-                Map<String, String> t2 = theRoutingTableMap.get(prevN);
-                Set<String> keys = t2.keySet();
+                String previousNodeAddress = previousNode.getM_localAddress();
+                Map<String, String> oldMap = previousNode.getM_routing_table_map().get(previousNodeAddress);
                 Map<String, String> newMap = new HashMap<>();
-                for (String k : keys) {
-                    if (!k.equalsIgnoreCase(deletedNode.getM_localAddress())) {
-                        if(t2.get(k).equalsIgnoreCase(deletedNode.getM_localAddress())){
-                            newMap.put(k, deletedNode.getM_targetAddress());
-                        }else{
-                            newMap.put(k, deletedNode.getM_routing_table_map().get(nodeToDelete).get(k));
+                for (String key : oldMap.keySet()) {
+                    if (!key.equalsIgnoreCase(deleteNode.getM_localAddress())) {
+                        if(oldMap.get(key).equalsIgnoreCase(deleteNode.getM_localAddress())){
+                            newMap.put(key, deleteNode.getM_targetAddress());
                         }
                     }
                 }
-                newRoutingTableMap.put(prevN, newMap);
-                m_nodeList.get(i).setM_targetAddress(deletedNode.getM_targetAddress());
-                m_nodeList.get(i).setM_targetPort(deletedNode.getM_targetPort());
-            }else if(!m_nodeList.get(i).getM_localAddress().equalsIgnoreCase(deletedNode.getM_localAddress())){
+                newRoutingTableMap.put(previousNodeAddress, newMap);
+                m_nodeList.get(i).setM_targetAddress(deleteNode.getM_targetAddress());
+                m_nodeList.get(i).setM_targetPort(deleteNode.getM_targetPort());
+            }else if(!m_nodeList.get(i).getM_localAddress().equalsIgnoreCase(deleteNode.getM_localAddress())){
                 String otherNode = m_nodeList.get(i).getM_localAddress();
                 Map<String,String> oldMap = m_nodeList.get(i).getM_routing_table_map().get(otherNode);
                 Map<String,String> newMap = new HashMap<>();
                 for(String key: oldMap.keySet()){
-                    if (!key.equalsIgnoreCase(deletedNode.getM_localAddress())){
+                    if (!key.equalsIgnoreCase(deleteNode.getM_localAddress())){
                         newMap.put(key,oldMap.get(key));
                     }
                 }
