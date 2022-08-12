@@ -136,7 +136,14 @@ public class GUI extends JFrame{
                 m_nodeList.get(i).setM_targetPort(deletedNode.getM_targetPort());
             }else if(!m_nodeList.get(i).getM_localAddress().equalsIgnoreCase(deletedNode.getM_localAddress())){
                 String otherNode = m_nodeList.get(i).getM_localAddress();
-                newRoutingTableMap.put(otherNode,m_nodeList.get(i).getM_routing_table_map().get(otherNode));
+                Map<String,String> oldMap = m_nodeList.get(i).getM_routing_table_map().get(otherNode);
+                Map<String,String> newMap = new HashMap<>();
+                for(String key: oldMap.keySet()){
+                    if (!key.equalsIgnoreCase(deletedNode.getM_localAddress())){
+                        newMap.put(key,oldMap.get(key));
+                    }
+                }
+                newRoutingTableMap.put(otherNode,newMap);
             }
         }
         System.out.println("Delete node index::"+deleteNodeCB.getSelectedIndex());
