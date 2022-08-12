@@ -13,6 +13,7 @@ public class GUI extends JFrame{
     private final JComboBox deleteNodeCB;
     Container container;
     String[] nodeStrings = {"N1", "N2", "N3", "N4", "N5"};
+    String[] nodesDeleteStrings = {"N2", "N3", "N4"};
 
     public GUI(List<Node> nodeList){
         m_nodeList = nodeList;
@@ -42,7 +43,7 @@ public class GUI extends JFrame{
         endNodeCB = new JComboBox(nodeStrings);
         endNodeCB.setBounds(280,100,60,20);
         container.add(endNodeCB);
-        deleteNodeCB = new JComboBox(nodeStrings);
+        deleteNodeCB = new JComboBox(nodesDeleteStrings);
         deleteNodeCB.setBounds(200,230,60,20);
         container.add(deleteNodeCB);
 
@@ -109,14 +110,11 @@ public class GUI extends JFrame{
 
     public void deleteNode() throws IOException {
         System.out.println("Node to delete: "+deleteNodeCB.getSelectedIndex());
-        Node deletedNode = m_nodeList.get(deleteNodeCB.getSelectedIndex());
+        Node deletedNode = m_nodeList.get(deleteNodeCB.getSelectedIndex()+1);
         System.out.println("Node address: "+deletedNode.getM_localAddress());
         Map<String, Map<String,String>> newRoutingTableMap = new HashMap<>();
         for(int i=0;i<m_nodeList.size()-2;i++){
-            if (m_nodeList.get(i).getM_targetAddress() == null){
-                newRoutingTableMap.put(m_nodeList.get(i).getM_localAddress(),new HashMap<>());
-            }
-            else if (m_nodeList.get(i).getM_targetAddress().equalsIgnoreCase(deletedNode.getM_localAddress())) {
+            if (m_nodeList.get(i).getM_targetAddress().equalsIgnoreCase(deletedNode.getM_localAddress())) {
                 Node previousNode = m_nodeList.get(i);
                 String prevN = previousNode.getM_localAddress();
                 String nodeToDelete = m_nodeList.get(deleteNodeCB.getSelectedIndex()).getM_localAddress();
@@ -126,7 +124,11 @@ public class GUI extends JFrame{
                 Map<String, String> newMap = new HashMap<>();
                 for (String k : keys) {
                     if (!k.equalsIgnoreCase(deletedNode.getM_localAddress())) {
-                        newMap.put(k, deletedNode.getM_routing_table_map().get(nodeToDelete).get(k));
+                        if(t2.get(k).equalsIgnoreCase(deletedNode.getM_localAddress())){
+                            newMap.put(k, deletedNode.getM_targetAddress());
+                        }else{
+                            newMap.put(k, deletedNode.getM_routing_table_map().get(nodeToDelete).get(k));
+                        }
                     }
                 }
                 newRoutingTableMap.put(prevN, newMap);
@@ -134,7 +136,6 @@ public class GUI extends JFrame{
                 m_nodeList.get(i).setM_targetPort(deletedNode.getM_targetPort());
             }else if(!m_nodeList.get(i).getM_localAddress().equalsIgnoreCase(deletedNode.getM_localAddress())){
                 String otherNode = m_nodeList.get(i).getM_localAddress();
-                System.out.println("OTHER NODE:::::"+otherNode);
                 newRoutingTableMap.put(otherNode,m_nodeList.get(i).getM_routing_table_map().get(otherNode));
             }
         }
