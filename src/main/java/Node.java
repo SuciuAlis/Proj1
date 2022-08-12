@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,38 +24,6 @@ public class Node {
     }
 
     public Node(){}
-
-    public String getM_localAddress() {
-        return m_localAddress;
-    }
-
-    public int getM_localPort() {
-        return m_localPort;
-    }
-
-    public String getM_targetAddress() {
-        return m_targetAddress;
-    }
-
-    public int getM_targetPort() {
-        return m_targetPort;
-    }
-
-    public void setM_targetAddress(String m_targetAddress) {
-        this.m_targetAddress = m_targetAddress;
-    }
-
-    public void setM_targetPort(int m_targetPort) {
-        this.m_targetPort = m_targetPort;
-    }
-
-    public Map<String, Map<String, String>> getM_routing_table_map() {
-        return m_routing_table_map;
-    }
-
-    public void setM_routing_table_map(Map<String, Map<String, String>> m_routing_table_map) {
-        this.m_routing_table_map = m_routing_table_map;
-    }
 
     public void run() {
         try {
@@ -84,9 +53,7 @@ public class Node {
                         System.out.println("[INFO - run()] - The received routing table is: " + routingTable);
                         m_routing_table_map = convertStringToMap(routingTable);
                         System.out.println("[INFO - run()] - The routing table was converted to a map and saved");
-
                         if(m_localAddress.equalsIgnoreCase("192.168.0.6")){
-//                        if(m_localAddress.equalsIgnoreCase("192.168.0.5")){
 //                        if(m_localAddress.equalsIgnoreCase("127.0.0.5")){
                             m_socket.close();
                             System.out.println("[INFO - run()] - Socket is closed");
@@ -97,7 +64,8 @@ public class Node {
                             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                             System.out.println("[INFO - run()] - The DataOutputStream was created with the socket's output stream");
                             ByteBuffer byteBuffer2 = ByteBuffer.allocate(1024);
-                            byte[] routingTableBytes = routingTable.getBytes();
+                            String routingTable2 = getRoutingTableMapString(m_routing_table_map);
+                            byte[] routingTableBytes = routingTable2.getBytes();
                             byteBuffer2.put((byte)0);
                             System.out.println("[INFO - run()] - First byte for the routing table type command has been set as 0 in the bytebuffer");
                             byteBuffer2.putInt(routingTableBytes.length);
@@ -141,7 +109,7 @@ public class Node {
                             System.out.println("[INFO - run()] - Length of the string with routing table was put in the bytebuffer");
                             byteBuffer2.put(destinationAddressBytes);
                             System.out.println("[INFO - run()] - The string with the destination address was put in the bytebuffer");
-                            byteBuffer2.putInt(40000);
+                            byteBuffer2.putInt(number);
                             System.out.println("[INFO - run()] - An integer was put in the bytebuffer");
                             byte[] array = byteBuffer2.array();
                             out.write(array);
@@ -160,16 +128,12 @@ public class Node {
     };
 
     public void setTargetAddressAndPort(){
-//        System.out.println("________________________DAAA 101"+m_routing_table_map.get(m_localAddress).get("192.168.0.5"));
         //Linux
-//        String[] addressAndPort = m_routing_table_map.get(m_localAddress).get("192.168.0.5").split(":");
-//        String[] addressAndPort = m_routing_table_map.get(m_localAddress).get("192.168.0.6").split(":");
-//        System.out.println("[INFO - setTargetAddressAndPort()] - Target address and port are: " + Arrays.toString(addressAndPort));
-
-
+        String[] addressAndPort = m_routing_table_map.get(m_localAddress).get("192.168.0.6").split(":");
+        System.out.println("[INFO - setTargetAddressAndPort()] - Target address and port are: " + Arrays.toString(addressAndPort));
         //Windows
-        System.out.println("DAAA 101"+m_routing_table_map.get(m_localAddress).get("127.0.0.5"));
-        String[] addressAndPort = m_routing_table_map.get(m_localAddress).get("127.0.0.5").split(":");
+//        System.out.println("DAAA 101"+m_routing_table_map.get(m_localAddress).get("127.0.0.5"));
+//        String[] addressAndPort = m_routing_table_map.get(m_localAddress).get("127.0.0.5").split(":");
         m_targetAddress = addressAndPort[0];
         m_targetPort = Integer.parseInt(addressAndPort[1]);
         System.out.println("[INFO - setTargetAddressAndPort()] - The local address and port are: " + m_localAddress + ":" + m_localPort);
@@ -195,18 +159,46 @@ public class Node {
         return routingTableMap;
     }
 
+    public String convertMapToString(Map<String,String> routingTableMap) {
+        StringBuilder routingTableMapAsString = new StringBuilder("{");
+        for (String key : routingTableMap.keySet()) {
+            routingTableMapAsString.append(key).append("=").append(routingTableMap.get(key)).append(", ");
+        }
+        routingTableMapAsString.delete(routingTableMapAsString.length()-2, routingTableMapAsString.length()).append("}");
+        return routingTableMapAsString.toString();
+    }
+
+
+    public String getRoutingTableMapString(Map<String, Map<String, String>> routing_table_map){
+        String[] nodesForMap = routing_table_map.keySet().toArray(new String[0]);
+        for(int i=0;i<nodesForMap.length;i++){
+            for(int j=0;j<nodesForMap.length-1;j++){
+                int l = nodesForMap[i].length()-1;
+                if(nodesForMap[i].charAt(l)<nodesForMap[j].charAt(l)){
+                    String aux=nodesForMap[i];
+                    nodesForMap[i]=nodesForMap[j];
+                    nodesForMap[j] = aux;
+                }
+            }
+        }
+        Map<String,String> nodesMap = new HashMap<>();
+        for (int i=0;i<routing_table_map.size();i++){
+            nodesMap.put(nodesForMap[i],convertMapToString(routing_table_map.get(nodesForMap[i])));
+        }
+        return convertMapToString(nodesMap);
+    }
+
     public static void main(String[] args) throws SocketException, InterruptedException {
-//        System.out.println("[INFO - main()] - The local IP address is: " + getLocalIpAddress());
-//        ServerNode serverNode = new ServerNode(getLocalIpAddress(),26150);
-        System.out.println("[INFO - main()] - Node was created with address and port: " + getLocalIpAddress() + ":" + 26150);
-        Node node = new Node("127.0.0.1",26150);
+        System.out.println("[INFO - main()] - The local IP address is: " + getLocalIpAddress());
+        Node node = new Node(getLocalIpAddress(),26150);
+//        System.out.println("[INFO - main()] - Node was created with address and port: " + getLocalIpAddress() + ":" + 26150);
+//        Node node = new Node("127.0.0.1",26150);
         node.run();
 
     }
 
     public static String getLocalIpAddress() throws SocketException {
         String localAddress = "";
-        //get all known network interfaces on the host
         Enumeration interfaces = NetworkInterface.getNetworkInterfaces();
         while(interfaces.hasMoreElements()) {
             NetworkInterface networkInterface = (NetworkInterface) interfaces.nextElement();
