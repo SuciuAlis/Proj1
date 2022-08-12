@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -103,8 +102,7 @@ public class Node{
             byteBuffer.putInt(40000);
             System.out.println("[INFO - initialAllocateByteBufferAndPutData(size)] - An integer was put in the bytebuffer");
         }else if(size == 1024){
-            //byteBuffer.put(0,(byte)0);
-            byteBuffer.put((byte)0);        //windows, merge si asa pe ubuntu, poate ca nu de la aia era problema :?
+            byteBuffer.put((byte)0);
             System.out.println("[INFO - initialAllocateByteBufferAndPutData(size)] - First byte for the routing table type command has been set as 0 in the bytebuffer");
             String routingTableString = getRoutingTableMapString(m_routing_table_map);
             System.out.println("[INFO - initialAllocateByteBufferAndPutData(size)] - The routing table was converted in a String:"+routingTableString);
@@ -126,68 +124,6 @@ public class Node{
         routingTableMapAsString.delete(routingTableMapAsString.length()-2, routingTableMapAsString.length()).append("}");
         return routingTableMapAsString.toString();
     }
-
-//    public String convertMapToString(Map<String,String> routingTableMap) {
-//        System.out.println("DA 5");
-//        StringBuilder routingTableMapAsString = new StringBuilder("{");   //nu mergea cu StringBuilder
-////        String routingTableMapAsString = "{";
-//        System.out.println("DA 6");
-//        for (String key : routingTableMap.keySet()) {
-//            routingTableMapAsString.append(key).append("=").append(routingTableMap.get(key)).append(", ");
-//        }
-////        System.out.println("DA 7");
-////        routingTableMapAsString.deleteCharAt(routingTableMapAsString.length()-2);
-////        routingTableMapAsString.deleteCharAt(routingTableMapAsString.length()-1);
-////        System.out.println("DA 7...2");
-//        routingTableMapAsString.delete(routingTableMapAsString.length()-2, routingTableMapAsString.length()).append("}");
-////        routingTableMapAsString.append("}");
-//
-//        // folosit List<String> in loc de StringBuilder pentru constructia de String
-//        List<String> keyValues = new ArrayList<>(routingTableMap.keySet());
-//        List<String> values = new ArrayList<>(routingTableMap.values());
-//        int sizeKeyValues = keyValues.size();
-//        int sizeValues = values.size();
-//
-//        System.out.println("KEY VALUES:"+keyValues);
-//        System.out.println("VALUES:"+values);
-//
-//        System.out.println("SIZE KEY VALUES:"+keyValues.size());
-//        System.out.println("SIZE VALUES:"+values.size());
-//        System.out.println("DA 7");
-//
-//
-//        //merge
-////        for(int i=0;i<sizeKeyValues;i++){
-////            if (i==sizeKeyValues-1){
-////                routingTableMapAsString = routingTableMapAsString + keyValues.get(i) + "=" + values.get(i) + "}";
-////            }
-////            else{
-////                routingTableMapAsString = routingTableMapAsString + keyValues.get(i) + "=" + values.get(i) + ", ";
-////            }
-////        }
-//
-////        System.out.println("ROUTING TABLE STR ____________"+ routingTableMapAsString);
-////        System.out.println("DA 8");
-////            routingTableMapAsString = routingTableMapAsString + keyValues.get(sizeKeyValues-1) + "=" + values.get(sizeValues-1) + "}";
-//
-////        routingTableMapAsString = routingTableMapAsString + keyValues.get(sizeKeyValues) + "=" + values.get(sizeValues) + "}";
-////        for(int i=0;i<keyValues.size()-1;i++) {
-////            routingTableMapAsString = keyValues.get(i) + "=" + values.get(i) + ", ";
-////        }
-////        routingTableMapAsString = keyValues.get(sizeKeyValues) + "=" + values.get(sizeKeyValues) + "}";
-//        System.out.println("ROUTING TABLE STR ____________"+ routingTableMapAsString);
-////        int length = routingTableMap.size();
-////        for(int i=0;i<keyValues.size()-1;i++){
-////            routingTableMapAsString.append(keyValues.get(i)).append("=").append(routingTableMap.get(keyValues.get(i))).append(", ");
-////        }
-////            routingTableMapAsString.append(keyValues.get(keyValues.size())).append("=").append(routingTableMap.get(keyValues.get(keyValues.size()))).append("}");
-//        System.out.println("ROUTING TABLE STR ____________"+ routingTableMapAsString);
-////        for(String i=0;i<routingTableMap.keySet().size()-1;i++){
-////            routingTableMapAsString.append(routingTableMap.get(i)).append("=").append(routingTableMap.get(i)).append(", ");
-////        }
-//        System.out.println("DA 8");
-//        return routingTableMapAsString.toString();
-//    }
 
     public Map<String, Map<String,String>> convertStringToMap(String routingTableString){
         Map<String, Map<String,String>> routingTableMap = new HashMap<>();
@@ -213,17 +149,6 @@ public class Node{
         System.out.println("[INFO - getRoutingTableMapString(routingTableMap)] - The routing table keys were saved in an array of type String");
         System.out.println("[INFO - getRoutingTableMapString(routingTableMap)] - The length of the array:"+nodesForMap.length);
         System.out.println("[INFO - getRoutingTableMapString(routingTableMap)] - The keys from the routing table:");
-        for (String key: nodesForMap){
-            System.out.println("*****key*****"+key);
-        }
-        String[] nodesForMapInv = new String[nodesForMap.length];
-        int invC = 0;
-        //partial
-//        for(int i=nodesForMap.length-1;i>=0;i--){
-//            nodesForMapInv[invC] = nodesForMap[i];
-//            invC++;
-//        }
-
         for(int i=0;i<nodesForMap.length;i++){
             for(int j=0;j<nodesForMap.length-1;j++){
                 int l = nodesForMap[i].length()-1;
@@ -235,33 +160,10 @@ public class Node{
             }
         }
         System.out.println("[INFO - getRoutingTableMapString(routingTableMap)] - The sorted keys from the routing table:");
-        for (String key: nodesForMap){
-            System.out.println("*****key*****"+key);
-        }
-
-////        System.out.println("DA 42");
-//        List<String> arrayList = Arrays.asList(nodesForMap);
-//        System.out.println("DA 43");
-//        Collections.reverse(arrayList);     //nu mergea cu Collections
-//        System.out.println("Se opreste dupa");
-//        String[] testnodesForMap = (String[]) arrayList.toArray();
-////        System.out.println("DA 45");
-////        System.out.println("NODES FOR MAPPPPP+++++"+ Arrays.toString(nodesForMap));
-//
-//        for (String s: nodesForMapInv){
-//            System.out.println("NODES MAPPPPP INV+++++"+s);
-//        }
-//        Map<String,String> nodesMap = new HashMap<>();
-//        System.out.println("DA 41");
-//        for (int i=0;i<routing_table_map.size()-1;i++){
-//            nodesMap.put(nodesForMapInv[i],convertMapToString(routing_table_map.get(nodesForMapInv[i])));
-//        }
         Map<String,String> nodesMap = new HashMap<>();
-//        for (int i=0;i<routing_table_map.size()-1;i++){
-        for (int i=0;i<routing_table_map.size()-1;i++){
+        for (int i=0;i<routing_table_map.size();i++){
             nodesMap.put(nodesForMap[i],convertMapToString(routing_table_map.get(nodesForMap[i])));
         }
-//        System.out.println("NODES MAP"+nodesMap);
         return convertMapToString(nodesMap);
     }
 }
