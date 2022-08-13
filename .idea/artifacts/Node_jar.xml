@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="Routing Framework:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/Routing_Framework_jar</output-path>
-    <root id="archive" name="Routing Framework.jar">
+  <artifact type="jar" name="Node:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Node_jar</output-path>
+    <root id="archive" name="Node.jar">
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
       </element>
